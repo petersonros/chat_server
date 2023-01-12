@@ -1,4 +1,6 @@
 module.exports = {
-    semi: false,
+    semi: true,
     singleQuote: false,
 };
+
+export default App();

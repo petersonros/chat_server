@@ -12,9 +12,11 @@
   "license": "ISC",
   "devDependencies": {
     "eslint": "^8.31.0",
-    "nodemon": "^2.0.20"
+    "nodemon": "^2.0.20",
+    "prisma": "^4.8.1"
   },
   "dependencies": {
+    "@prisma/client": "^4.8.1",
     "chalk": "^4.1.2",
     "cors": "^2.8.5",
     "date-fns": "^2.29.3",

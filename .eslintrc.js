@@ -29,3 +29,5 @@ module.exports = {
 		]
 	}
 };
+
+export default App();
