@@ -23,15 +23,15 @@ const logger = winston.createLogger({
           const date = chalk.gray(
             format(new Date(info.timestamp), "[dd/MM/yyyy hh:mm:ss]")
           );
-
-          return [date, color(info.message.replace("\n", ""))].join(" ");
+          return [date, color(info.message.replace('\n', ''))].join(' ');
         })
       ),
     }),
+
     new winston.transports.DailyRotateFile({
       format: winston.format.combine(
         winston.format.timestamp(),
-        winston.format.json(),
+        winston.format.json()
       ),
       filename: path.join(process.env.LOGS_PATH, "%DATE%.log"),
       datePattern: "YYYY-MM-DD",
@@ -44,7 +44,7 @@ const logger = winston.createLogger({
 const loggerStream = {
   write(info) {
     logger.http(info);
-  }
-}
+  },
+};
 
 module.exports = { logger, loggerStream };

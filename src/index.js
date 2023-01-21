@@ -10,14 +10,15 @@ const router = require("./routes");
 const port = process.env.PORT;
 const app = express();
 
-app.use(express.json());
-app.use(cors());
-app.use(morgan("tiny", { stream: loggerStream }));
-app.use(router);
+async function main() {
+  app.use(express.json());
+  app.use(cors());
+  app.use(morgan("tiny", { stream: loggerStream }));
+  app.use(router);
 
-app.listen(port, () => {
-  logger.info(`Servidor rodando na porta: ${port}`);
-  logger.debug("Debugging message");
-  logger.error("Error message");
-  logger.warn("Caution!");
-});
+  app.listen(port, () => {
+    logger.info(`Servidor rodando na porta: ${port}`);
+  });
+}
+
+main();

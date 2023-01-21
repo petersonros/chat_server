@@ -1,14 +1,14 @@
-const prisma = require("../../utils/database");
+const prisma = require('../../utils/database');
 
-const UserServices = {
+const UsersServices = {
   async findAll() {
-    const users = await prisma.user.findAll();
+    const users = await prisma.user.findMany();
     return users;
   },
 
   async findOne(id) {
     const user = await prisma.user.findUnique({
-      where: { id }
+      where: { id },
     });
     return user;
   },
@@ -19,7 +19,7 @@ const UserServices = {
         name: data.name,
         email: data.email,
         password: data.password,
-      }
+      },
     });
     return user;
   },
@@ -31,18 +31,17 @@ const UserServices = {
         name: data.name,
         email: data.email,
         password: data.password,
-      }
+      },
     });
     return user;
   },
 
   async delete(id) {
     const user = await prisma.user.delete({
-      where: { id }
+      where: { id },
     });
     return user;
   },
+};
 
-}
-
-module.exports = UserServices;
+module.exports = UsersServices;

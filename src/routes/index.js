@@ -9,6 +9,8 @@ router.use("/messages", messagesRouter);
 router.use("/users", usersRouter);
 router.use("/rooms", roomsRouter);
 
-router.get('/', async (req, res) => res.json({ message: "Welcome to chat server!", }));
+router.get("/", async (req, res) =>
+  res.json({ message: "Welcome to chat server!" })
+);
 
 module.exports = router;
