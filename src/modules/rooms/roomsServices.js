@@ -1,6 +1,6 @@
-const prisma = require("../../utils/database");
-const { v4 } = require("uuid");
-const MessagesServices = require("../messages/messagesServices");
+const prisma = require('../../utils/database');
+const MessagesServices = require('../messages/messagesServices');
+const createCode = require('../../utils/createCode');
 
 const RoomsServices = {
   async findAll() {
@@ -12,17 +12,19 @@ const RoomsServices = {
     const room = await prisma.room.findUnique({
       where: { id },
     });
+
     return room;
   },
 
   async create(data) {
-    const code = v4().split("-")[0];
+    const code = createCode().withLetters().withNumbers().create();
     const room = await prisma.room.create({
       data: {
         code,
         name: data.name,
       },
     });
+
     return room;
   },
 
@@ -33,6 +35,7 @@ const RoomsServices = {
         name: data.name,
       },
     });
+
     return room;
   },
 
@@ -40,6 +43,7 @@ const RoomsServices = {
     const room = await prisma.room.delete({
       where: { id },
     });
+
     return room;
   },
 

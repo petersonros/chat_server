@@ -1,8 +1,8 @@
-const winston = require("winston");
-const chalk = require("chalk");
-const { format } = require("date-fns");
-const path = require("path");
-require("winston-daily-rotate-file");
+const winston = require('winston');
+const chalk = require('chalk');
+const { format } = require('date-fns');
+const path = require('path');
+require('winston-daily-rotate-file');
 
 const colors = {
   warn: chalk.yellow,
@@ -13,7 +13,7 @@ const colors = {
 };
 
 const logger = winston.createLogger({
-  level: "debug",
+  level: 'debug',
   transports: [
     new winston.transports.Console({
       format: winston.format.combine(
@@ -21,8 +21,9 @@ const logger = winston.createLogger({
         winston.format.printf((info) => {
           const color = colors[info.level];
           const date = chalk.gray(
-            format(new Date(info.timestamp), "[dd/MM/yyyy hh:mm:ss]")
+            format(new Date(info.timestamp), '[dd/MM/yyyy hh:mm:ss]')
           );
+
           return [date, color(info.message.replace('\n', ''))].join(' ');
         })
       ),
@@ -33,10 +34,10 @@ const logger = winston.createLogger({
         winston.format.timestamp(),
         winston.format.json()
       ),
-      filename: path.join(process.env.LOGS_PATH, "%DATE%.log"),
-      datePattern: "YYYY-MM-DD",
-      maxSize: "20m",
-      maxFiles: "30d",
+      filename: path.join(process.env.LOGS_PATH, '%DATE%.log'),
+      datePattern: 'YYYY-MM-DD',
+      maxSize: '20m',
+      maxFiles: '30d',
     }),
   ],
 });

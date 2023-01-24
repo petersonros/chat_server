@@ -1,4 +1,4 @@
-const prisma = require("../../utils/database");
+const prisma = require('../../utils/database');
 
 const MessagesServices = {
   async findAll(filter = {}) {
@@ -6,8 +6,10 @@ const MessagesServices = {
 
     if (filter.roomId) {
       if (!query.where) query.where = {};
+
       query.where.roomId = filter.roomId;
     }
+
     const messages = await prisma.message.findMany(query);
     return messages;
   },
@@ -16,6 +18,7 @@ const MessagesServices = {
     const message = await prisma.message.findUnique({
       where: { id },
     });
+
     return message;
   },
 
@@ -27,6 +30,7 @@ const MessagesServices = {
         roomId: data.roomId,
       },
     });
+
     return message;
   },
 
@@ -39,6 +43,7 @@ const MessagesServices = {
         roomId: data.roomId,
       },
     });
+
     return message;
   },
 
@@ -46,6 +51,7 @@ const MessagesServices = {
     const message = await prisma.message.delete({
       where: { id },
     });
+
     return message;
   },
 };
