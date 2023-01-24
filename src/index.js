@@ -7,11 +7,14 @@ const morgan = require('morgan');
 const { logger, loggerStream } = require('./utils/logger');
 const router = require('./routes');
 const authenticate = require('./middlewares/auth');
+const { publicPath } = require('./config/upload');
 
 const port = process.env.PORT;
 const app = express();
 
 async function main() {
+  app.use('/public', express.static(publicPath));
+
   app.use(express.json());
   app.use(cors());
   app.use(morgan('tiny', { stream: loggerStream }));

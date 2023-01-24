@@ -26,5 +26,3 @@ const MessagesController = {
     return res.json(message);
   },
 };
-
-module.exports = MessagesController;

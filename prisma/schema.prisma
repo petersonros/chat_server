@@ -8,77 +8,74 @@ datasource db {
 }
 
 model User {
-  id       Int        @id @default(autoincrement())
-  name     String
-  email    String     @unique
-  password String
-  imageUrl String?
-  status   UserStatus @default(PENDING)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  messages     Message[]
-  rooms        UserRoom[]
-  confirmCodes ConfirmCode[]
-
+  id                  Int                  @id @default(autoincrement())
+  name                String
+  email               String               @unique
+  password            String
+  avatar              String?
+  status              UserStatus           @default(PENDING)
+  messages            Message[]
+  rooms               UserRoom[]
+  confirmCodes        ConfirmCode[]
+  resetPasswordTokens ResetPasswordToken[]
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
   @@map("users")
 }
 
 model ConfirmCode {
-  id     Int    @id @default(autoincrement())
-  code   String
-  userId Int
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  status ConfirmCodeStatus @default(PENDING)
-  user   User              @relation(fields: [userId], references: [id])
-
+  id        Int               @id @default(autoincrement())
+  code      String
+  userId    Int
+  status    ConfirmCodeStatus @default(PENDING)
+  user      User              @relation(fields: [userId], references: [id])
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
   @@map("confirm_code")
 }
 
-model UserRoom {
-  id     Int @id @default(autoincrement())
-  userId Int
-  roomId Int
+model ResetPasswordToken {
+  id        Int                      @id @default(autoincrement())
+  token     String
+  userId    Int
+  status    ResetPasswordTokenStatus @default(PENDING)
+  user      User                     @relation(fields: [userId], references: [id])
+  createdAt DateTime                 @default(now())
+  updatedAt DateTime                 @updatedAt
+  @@map("reset_password_token")
+}
 
+model UserRoom {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  roomId    Int
+  room      Room     @relation(fields: [roomId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  user User @relation(fields: [userId], references: [id])
-  room Room @relation(fields: [roomId], references: [id])
-
   @@map("users_rooms")
 }
 
 model Room {
-  id   Int    @id @default(autoincrement())
-  name String
-  code String @unique
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  users    UserRoom[]
-  messages Message[]
-
+  id        Int        @id @default(autoincrement())
+  name      String
+  code      String     @unique
+  users     UserRoom[]
+  messages  Message[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
   @@map("rooms")
 }
 
 model Message {
-  id      Int    @id @default(autoincrement())
-  content String
-  roomId  Int
-  userId  Int
-
+  id        Int      @id @default(autoincrement())
+  content   String
+  roomId    Int
+  room      Room     @relation(fields: [roomId], references: [id])
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  room Room @relation(fields: [roomId], references: [id])
-  user User @relation(fields: [userId], references: [id])
-
   @@map("messages")
 }
 
@@ -86,13 +83,18 @@ enum ConfirmCodeStatus {
   PENDING
   USED
   EXPIRED
-
   @@map("confirm_code_status")
+}
+
+enum ResetPasswordTokenStatus {
+  PENDING
+  USED
+  EXPIRED
+  @@map("reset_password_token_status")
 }
 
 enum UserStatus {
   PENDING
   ACTIVE
-
   @@map("user_status")
 }

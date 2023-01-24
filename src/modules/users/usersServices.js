@@ -1,4 +1,8 @@
-const { UserStatus, ConfirmCodeStatus } = require('@prisma/client');
+const {
+  UserStatus,
+  ConfirmCodeStatus,
+  ResetPasswordTokenStatus,
+} = require('@prisma/client');
 const AuthService = require('../../utils/auth');
 const createCode = require('../../utils/createCode');
 const prisma = require('../../utils/database');
@@ -46,6 +50,7 @@ const UsersServices = {
         name: data.name,
         email: data.email,
         password: data.password,
+        avatar: data.avatar,
       },
     });
 
@@ -62,6 +67,24 @@ const UsersServices = {
 
   async findByEmail(email) {
     return await prisma.user.findFirst({ where: { email } });
+  },
+
+  async findByToken(token) {
+    const payload = AuthService.verifyToken(token);
+    if (!payload || !payload.id) throw new Error('Token inválido!');
+    const user = await UsersServices.findOne(payload.id);
+    return user;
+  },
+
+  async login(data) {
+    const user = await UsersServices.findByEmail(data.email);
+
+    if (!user) throw new Error('E-mail não encontrado!');
+    if (user.status !== UserStatus.ACTIVE) throw new Error('Usuário inválido');
+    if (user.password !== data.password) throw new Error('Senha incorreta!');
+
+    const token = AuthService.createToken({ id: user.id });
+    return { user, token };
   },
 
   async register(data) {
@@ -113,21 +136,69 @@ const UsersServices = {
     MailService.sendMail(data.email, 'Confirmação do Registro!', html);
   },
 
-  async login(data) {
-    const user = await UsersServices.findByEmail(data.email);
+  async forgetPassword(email) {
+    const user = await UsersServices.findByEmail(email);
 
-    if (!user) throw new Error('E-mail não encontrado!');
-    if (user.status !== UserStatus.ACTIVE) throw new Error('Usuário inválido');
-    if (user.password !== data.password) throw new Error('Senha incorreta!');
+    if (!user) throw new Error('Usuário não encontrado!');
 
-    const token = AuthService.createToken({ id: user.id });
+    const token = createCode()
+      .withNumbers()
+      .withLetters()
+      .withUpperLetters()
+      .create(24);
+
+    await prisma.resetPasswordToken.updateMany({
+      where: { userId: user.id },
+      data: { status: ResetPasswordTokenStatus.EXPIRED },
+    });
+    await prisma.resetPasswordToken.create({
+      data: { userId: user.id, token },
+    });
+
     return { user, token };
   },
 
-  async findByToken(token) {
-    const payload = AuthService.verifyToken(token);
-    if (!payload || !payload.id) throw new Error('Token inválido!');
-    const user = await UsersServices.findOne(payload.id);
+  async sendResetPasswordMail(data) {
+    const html = MailService.template('forget-password', {
+      name: data.name,
+      token: data.token,
+    });
+
+    await MailService.sendMail(data.email, `Reset da senha ${data.name}`, html);
+  },
+
+  async resetPassword(data) {
+    const token = await prisma.resetPasswordToken.findFirst({
+      where: { token: data.token, status: ResetPasswordTokenStatus.PENDING },
+      include: { user: true },
+    });
+
+    if (!token) throw new Error('Token inválido!');
+
+    await prisma.resetPasswordToken.update({
+      where: { id: token.id },
+      data: { status: ResetPasswordTokenStatus.USED },
+    });
+    await prisma.user.update({
+      where: { id: token.userId },
+      data: { password: data.password },
+    });
+
+    return token.user;
+  },
+
+  async updatePassword(id, { oldPassword, newPassword }) {
+    const user = await UsersServices.findOne(id);
+
+    if (!user) throw new Error('Usuário não encontrado!');
+    if (user.password !== oldPassword)
+      throw new Error('Senha antiga incorreta!');
+
+    await prisma.user.update({
+      where: { id },
+      data: { password: newPassword },
+    });
+
     return user;
   },
 };
