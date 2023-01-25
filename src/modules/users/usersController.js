@@ -112,6 +112,19 @@ const UsersController = {
       return res.status(400).json({ success: false, msg: error.message });
     }
   },
+
+  async joinRoom({ params }, res) {
+    try {
+      const joinedRoom = await UsersServices.joinRoom(
+        Number(params.id),
+        params.room
+      );
+
+      return res.json(joinedRoom);
+    } catch (error) {
+      return res.status(400).json({ success: false, msg: error.message });
+    }
+  },
 };
 
 module.exports = UsersController;

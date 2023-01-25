@@ -1,6 +1,7 @@
 const dotenv = require('dotenv');
 dotenv.config();
 
+const http = require('http');
 const express = require('express');
 const cors = require('cors');
 const morgan = require('morgan');
@@ -8,9 +9,11 @@ const { logger, loggerStream } = require('./utils/logger');
 const router = require('./routes');
 const authenticate = require('./middlewares/auth');
 const { publicPath } = require('./config/upload');
+const createSocketServer = require('./socket');
 
 const port = process.env.PORT;
 const app = express();
+const server = http.createServer(app);
 
 async function main() {
   app.use('/public', express.static(publicPath));
@@ -24,7 +27,9 @@ async function main() {
     return res.json(req.user);
   });
 
-  app.listen(port, () => {
+  createSocketServer(server);
+
+  server.listen(port, () => {
     logger.info(`Servidor rodando na porta: ${port}`);
   });
 }

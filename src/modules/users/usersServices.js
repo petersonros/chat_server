@@ -76,6 +76,15 @@ const UsersServices = {
     return user;
   },
 
+  async findUserRoom(id, roomCode) {
+    const userRoom = await prisma.userRoom.findFirst({
+      where: { userId: id, room: { code: roomCode } },
+      include: { room: true },
+    });
+
+    return userRoom?.room;
+  },
+
   async login(data) {
     const user = await UsersServices.findByEmail(data.email);
 
@@ -200,6 +209,20 @@ const UsersServices = {
     });
 
     return user;
+  },
+
+  async joinRoom(id, roomCode) {
+    const room = await prisma.room.findFirst({ where: { code: roomCode } });
+    if (!room) throw new Error('Sala não encontrada!');
+
+    const joinedRoom = await prisma.userRoom.create({
+      data: {
+        userId: id,
+        roomId: room.id,
+      },
+    });
+
+    return joinedRoom;
   },
 };
 

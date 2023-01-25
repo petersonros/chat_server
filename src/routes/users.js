@@ -16,6 +16,7 @@ router.put(
   upload.single('avatar'),
   UsersController.updateAvatar
 );
+router.post('/:id/join-room/:room', UsersController.joinRoom);
 
 router.get('/', UsersController.findAll);
 router.get('/:id', UsersController.findOne);
